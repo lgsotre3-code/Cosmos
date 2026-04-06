@@ -96,7 +96,15 @@ const s = {
     fontSize: '0.64rem', letterSpacing: '0.15em', textTransform: 'uppercase' as const,
     color: 'rgba(237,224,200,0.35)', marginBottom: '0.65rem',
   },
-  cardText: { fontSize: '0.97rem', fontStyle: 'italic' as const, lineHeight: 1.8, color: 'rgba(237,224,200,0.78)' },
+  // CORRIGIDO: removido italic, aumentado tamanho, melhorado contraste e espaçamento
+  cardText: {
+    fontSize: '1.05rem',
+    fontStyle: 'normal' as const,
+    fontWeight: 400,
+    lineHeight: 1.9,
+    color: 'rgba(237,224,200,0.92)',
+    letterSpacing: '0.01em',
+  },
   balanceCard: {
     background: 'rgba(255,255,255,0.018)', border: '1px solid rgba(201,168,76,0.15)',
     borderRadius: '13px', padding: '1.5rem', marginTop: '1.25rem',
