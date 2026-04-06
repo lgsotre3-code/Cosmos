@@ -153,7 +153,7 @@ function CardDisplay({ card, index, total }: { card: TarotCard; index: number; t
         </div>
         {/* Card name */}
         <div style={{
-          fontSize: 11,
+          fontSize: 12,
           color: '#c9a84c',
           fontFamily: "'Cinzel', serif",
           fontWeight: 700,
@@ -192,10 +192,10 @@ function CardDisplay({ card, index, total }: { card: TarotCard; index: number; t
 
       {/* Message */}
       <div style={{
-        fontSize: 13,
-        color: 'rgba(201,168,76,0.75)',
+        fontSize: 15,
+        color: 'rgba(237,224,200,0.88)',
         fontFamily: "'Cormorant Garamond', serif",
-        fontStyle: 'italic',
+        fontStyle: 'normal',
         lineHeight: 1.65,
         textAlign: 'center' as const,
         maxWidth: 200,
