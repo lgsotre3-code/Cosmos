@@ -69,6 +69,12 @@ Formato exato:
 }
 
 export async function POST(request: NextRequest) {
+  console.log('[horoscopo] ENV CHECK:', {
+    hasGoogleKey: !!process.env.GOOGLE_API_KEY,
+    hasGroqKey: !!process.env.GROQ_API_KEY,
+    nodeEnv: process.env.NODE_ENV,
+  });
+
   if (!process.env.GOOGLE_API_KEY) {
     return NextResponse.json({ error: 'API key não configurada.' }, { status: 500 });
   }
