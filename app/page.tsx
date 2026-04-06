@@ -59,8 +59,7 @@ export default function HomePage() {
           <h1 style={styles.h1}>✦ Cosmos ✦</h1>
           <p style={styles.tagline}>Mapa Astral Natal</p>
           
-          {/* Logout via Server Action / Route Handler */}
-          <form action="/auth/signout" method="post" style={{ marginTop: '1rem' }}>
+          <form action="/auth/signout" method="post" style={{ marginTop: '1.2rem' }}>
             <button type="submit" style={styles.logoutButton}>
               Sair da Conta
             </button>
@@ -114,7 +113,7 @@ const styles = {
   header: { textAlign: 'center' as const, padding: '3rem 0 2rem' },
   h1: { fontFamily: "var(--font-cinzel-decorative, 'Cinzel Decorative', serif)", fontSize: 'clamp(2.2rem, 5vw, 3.6rem)', color: '#c9a84c', textShadow: '0 0 60px rgba(201,168,76,0.4)', letterSpacing: '0.08em', marginBottom: '0.5rem' },
   tagline: { fontFamily: "var(--font-cinzel, 'Cinzel', serif)", fontSize: '0.8rem', color: 'rgba(237,224,200,0.35)', letterSpacing: '0.38em', textTransform: 'uppercase' as const },
-  logoutButton: { padding: '0.5rem 1.25rem', borderRadius: '6px', background: 'rgba(220,80,80,0.05)', border: '1px solid rgba(220,80,80,0.2)', color: 'rgba(220,80,80,0.7)', fontFamily: "var(--font-cinzel, 'Cinzel', serif)", fontSize: '0.7rem', letterSpacing: '0.1em', cursor: 'pointer' },
+  logoutButton: { padding: '0.6rem 1.4rem', borderRadius: '8px', background: 'rgba(220,80,80,0.06)', border: '1px solid rgba(220,80,80,0.2)', color: 'rgba(240,100,100,0.8)', fontFamily: "var(--font-cinzel, 'Cinzel', serif)", fontSize: '0.75rem', letterSpacing: '0.12em', cursor: 'pointer', transition: 'all 0.2s' },
   footer: { textAlign: 'center' as const, padding: '2.5rem', fontFamily: "var(--font-cinzel, 'Cinzel', serif)", fontSize: '0.64rem', letterSpacing: '0.22em', color: 'rgba(237,224,200,0.35)' },
   errorBanner: { maxWidth: '600px', margin: '1rem auto', padding: '0.85rem 1.25rem', borderRadius: '8px', background: 'rgba(220,80,80,0.08)', border: '1px solid rgba(220,80,80,0.25)', color: '#e07070', fontFamily: "var(--font-cinzel, 'Cinzel', serif)", fontSize: '0.8rem', letterSpacing: '0.1em', textAlign: 'center' as const },
 };
