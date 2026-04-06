@@ -1,9 +1,16 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Rotas que exigem autenticacao
+const PROTECTED_ROUTES = ['/horoscopo', '/tarot']
+// Rotas de autenticacao (nunca bloqueadas, e redireciona se ja logado)
+const AUTH_ROUTES = ['/login']
+
 export async function middleware(request: NextRequest) {
-  // Rotas de auth passam sem nenhuma interferência
-  if (request.nextUrl.pathname.startsWith('/auth')) {
+  const { pathname } = request.nextUrl
+
+  // Rotas de callback do auth passam sem qualquer interferencia
+  if (pathname.startsWith('/auth')) {
     return NextResponse.next()
   }
 
@@ -30,23 +37,32 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Usa getSession em vez de getUser — evita chamada de rede extra
-  // que pode falhar em Edge Runtime na Vercel
-  const { data: { session } } = await supabase.auth.getSession()
+  // FIX: usa getUser() em vez de getSession()
+  // getSession() apenas le o cookie sem validar o JWT no servidor,
+  // causando loop de login. getUser() valida corretamente.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
+  const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
+  const isAuthRoute = AUTH_ROUTES.includes(pathname)
 
-  if (!session && pathname !== '/login') {
+  // Rota protegida sem sessao -> redireciona para login
+  if (!user && isProtected) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
+
     const redirectResponse = NextResponse.redirect(redirectUrl)
-    supabaseResponse.cookies.getAll().forEach(cookie => {
+
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value)
     })
+
     return redirectResponse
   }
 
-  if (session && pathname === '/login') {
+  // Ja autenticado tentando acessar login -> vai para home
+  if (user && isAuthRoute) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
@@ -54,5 +70,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\..*).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)',
+  ],
 }
