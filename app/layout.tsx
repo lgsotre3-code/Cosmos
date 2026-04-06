@@ -1,26 +1,20 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// app/layout.tsx
-// ─────────────────────────────────────────────────────────────────────────────
-
 import type { Metadata, Viewport } from 'next';
 import { Cinzel, Cinzel_Decorative, EB_Garamond } from 'next/font/google';
+import Nav from '@/components/Nav';
 import './globals.css';
 
-// ── next/font: preload automático, zero CLS, sem request extra no runtime ──
 const cinzel = Cinzel({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-cinzel',
   display: 'swap',
 });
-
 const cinzelDecorative = Cinzel_Decorative({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-cinzel-decorative',
   display: 'swap',
 });
-
 const ebGaramond = EB_Garamond({
   subsets: ['latin'],
   weight: ['400', '500'],
@@ -29,7 +23,6 @@ const ebGaramond = EB_Garamond({
   display: 'swap',
 });
 
-// ── SEO Metadata ────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
   metadataBase: new URL('https://cosmos-astral.vercel.app'),
   title: {
@@ -45,25 +38,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Cosmos Astral' }],
   robots: { index: true, follow: true },
-  alternates: {
-    canonical: '/',
-  },
+  alternates: { canonical: '/' },
   openGraph: {
     title: 'Cosmos — Mapa Astral Natal',
-    description:
-      'Descubra seu mapa astral natal com cálculos precisos e interpretações profundas. Gratuito e instantâneo.',
+    description: 'Descubra seu mapa astral natal com cálculos precisos e interpretações profundas. Gratuito e instantâneo.',
     url: 'https://cosmos-astral.vercel.app',
     siteName: 'Cosmos Astral',
     locale: 'pt_BR',
     type: 'website',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Cosmos — Mapa Astral Natal',
-      },
-    ],
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Cosmos — Mapa Astral Natal' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -84,14 +67,16 @@ export const viewport: Viewport = {
   themeColor: '#02030e',
 };
 
-// ── Layout ──────────────────────────────────────────────────────────────────
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="pt-BR"
       className={`${cinzel.variable} ${cinzelDecorative.variable} ${ebGaramond.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <Nav />
+        {children}
+      </body>
     </html>
   );
 }

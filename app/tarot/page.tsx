@@ -289,7 +289,7 @@ export default function TarotPage() {
         position: 'relative',
         zIndex: 1,
         minHeight: '100vh',
-        padding: '48px 20px 80px',
+        padding: '72px 20px 80px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

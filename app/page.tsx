@@ -125,7 +125,7 @@ const styles = {
     zIndex: 1,
     maxWidth: '1140px',
     margin: '0 auto',
-    padding: '1.5rem',
+    padding: '72px 1.5rem 1.5rem',
   },
   header: {
     textAlign: 'center' as const,
