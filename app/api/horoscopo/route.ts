@@ -42,6 +42,7 @@ interface HoroscopoData {
   conselho: string;
 }
 
+// Star field
 const STARS = Array.from({ length: 80 }, (_, i) => ({
   id: i, x: (i * 137.508) % 100, y: (i * 97.3) % 100,
   r: i % 5 === 0 ? 1.5 : i % 3 === 0 ? 1 : 0.6,
@@ -60,29 +61,20 @@ export default function HoroscopoPage() {
     setError('');
     setLoading(true);
 
-    const MAX_RETRIES = 3;
-
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      try {
-        const res = await fetch('/api/horoscopo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sign: sign.name }),
-        });
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        const json: HoroscopoData = await res.json();
-        setData(json);
-        setLoading(false);
-        return;
-      } catch {
-        if (attempt < MAX_RETRIES - 1) {
-          await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-        }
-      }
+    try {
+      const res = await fetch('/api/horoscopo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sign: sign.name }),
+      });
+      if (!res.ok) throw new Error();
+      const json: HoroscopoData = await res.json();
+      setData(json);
+    } catch {
+      setError('O oráculo está em silêncio. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
-
-    setError('O oráculo está em silêncio. Tente novamente.');
-    setLoading(false);
   };
 
   const elColor = selected ? EL_COLORS[selected.el] : '#c9a84c';
@@ -125,12 +117,14 @@ export default function HoroscopoPage() {
         }
       `}</style>
 
+      {/* Stars */}
       <svg style={{ position:'fixed',inset:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0 }} aria-hidden>
         {STARS.map(s => <circle key={s.id} cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} fill="#fff" opacity={s.op} />)}
       </svg>
 
       <main style={{ position:'relative', zIndex:1, minHeight:'100vh', padding:'72px 20px 80px', maxWidth:860, margin:'0 auto' }}>
 
+        {/* Header */}
         <header style={{ textAlign:'center', marginBottom:48 }}>
           <div style={{ fontSize:11, letterSpacing:'0.35em', color:'rgba(201,168,76,0.4)', fontFamily:"var(--font-cinzel,'Cinzel',serif)", marginBottom:10, textTransform:'uppercase' }}>
             ✦ Oráculo Diário ✦
@@ -143,6 +137,7 @@ export default function HoroscopoPage() {
           </p>
         </header>
 
+        {/* Sign grid */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:8, marginBottom:48 }}>
           {SIGNS.map(sign => (
             <button
@@ -157,6 +152,7 @@ export default function HoroscopoPage() {
           ))}
         </div>
 
+        {/* Loading */}
         {loading && (
           <div style={{ textAlign:'center', padding:'48px 0' }}>
             <div style={{ fontSize:32, animation:'pulse-gold 1.2s ease infinite', color:'#c9a84c' }}>✦</div>
@@ -166,14 +162,18 @@ export default function HoroscopoPage() {
           </div>
         )}
 
+        {/* Error */}
         {error && (
           <p style={{ textAlign:'center', color:'rgba(220,100,100,0.8)', fontFamily:"var(--font-cinzel,'Cinzel',serif)", fontSize:12, letterSpacing:'0.1em' }}>
             {error}
           </p>
         )}
 
+        {/* Result */}
         {data && selected && (
           <div style={{ animation:'fadeUp 0.5s ease both' }}>
+
+            {/* Sign header */}
             <div style={{ textAlign:'center', marginBottom:36 }}>
               <div style={{ fontSize:52, marginBottom:8, filter:`drop-shadow(0 0 16px ${elColor}66)` }}>
                 {selected.sym}
@@ -186,6 +186,7 @@ export default function HoroscopoPage() {
               </div>
             </div>
 
+            {/* Sections grid */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))', gap:16 }}>
               {SECTIONS.map(({ key, label, sym }, i) => (
                 <article
@@ -211,6 +212,7 @@ export default function HoroscopoPage() {
               ))}
             </div>
 
+            {/* New reading */}
             <div style={{ textAlign:'center', marginTop:32 }}>
               <button
                 onClick={() => { setData(null); setSelected(null); }}
@@ -222,6 +224,7 @@ export default function HoroscopoPage() {
           </div>
         )}
 
+        {/* Empty state */}
         {!selected && !loading && (
           <div style={{ textAlign:'center', padding:'24px 0', color:'rgba(201,168,76,0.25)', fontFamily:"var(--font-cinzel,'Cinzel',serif)", fontSize:11, letterSpacing:'0.2em', textTransform:'uppercase' }}>
             Selecione seu signo acima
