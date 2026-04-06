@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Early return for auth routes - don't interfere with OAuth callback
+  // Rotas de auth passam sem nenhuma interferência
   if (request.nextUrl.pathname.startsWith('/auth')) {
     return NextResponse.next()
   }
@@ -14,7 +14,9 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return request.cookies.getAll() },
+        getAll() {
+          return request.cookies.getAll()
+        },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
@@ -28,37 +30,29 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Usa getSession em vez de getUser — evita chamada de rede extra
+  // que pode falhar em Edge Runtime na Vercel
+  const { data: { session } } = await supabase.auth.getSession()
+
   const { pathname } = request.nextUrl
 
-  // Rotas de auth nunca são bloqueadas
-  if (pathname.startsWith('/auth')) {
-    return supabaseResponse
-  }
-
-  if (!user && pathname !== '/login') {
+  if (!session && pathname !== '/login') {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
     const redirectResponse = NextResponse.redirect(redirectUrl)
-    // ✅ Copia os cookies da sessão para o redirect não perder a sessão
     supabaseResponse.cookies.getAll().forEach(cookie => {
       redirectResponse.cookies.set(cookie.name, cookie.value)
     })
     return redirectResponse
   }
 
-  if (user && pathname === '/login') {
-    const redirectResponse = NextResponse.redirect(new URL('/', request.url))
-    // ✅ Idem
-    supabaseResponse.cookies.getAll().forEach(cookie => {
-      redirectResponse.cookies.set(cookie.name, cookie.value)
-    })
-    return redirectResponse
+  if (session && pathname === '/login') {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\..*).*)'],
 }
