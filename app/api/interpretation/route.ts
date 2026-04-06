@@ -6,7 +6,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // ─────────────────────────────────────────────────────────────────────────────
 // /app/api/interpretation/route.ts
 //
-// AI-powered interpretation endpoint using Google Gemini-1.5-Flash.
+// AI-powered interpretation endpoint using Google Gemini-2.0-Flash.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface InterpretationRequest {
@@ -29,7 +29,7 @@ async function generateInterpretation(
   _focus = 'full'
 ): Promise<InterpretationResponse> {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.0-flash',
     generationConfig: {
       responseMimeType: 'application/json',
     },
