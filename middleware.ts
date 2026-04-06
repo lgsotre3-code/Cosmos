@@ -2,7 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+  const response = NextResponse.next({
+    request: { headers: request.headers },
+  })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,19 +12,30 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         get(name) { return request.cookies.get(name)?.value },
-        set(name, value, options) { response.cookies.set({ name, value, ...options }) },
-        remove(name, options) { response.cookies.set({ name, value: '', ...options }) },
+        set(name, value, options) {
+          request.cookies.set({ name, value, ...options })
+          response.cookies.set({ name, value, ...options })
+        },
+        remove(name, options) {
+          request.cookies.set({ name, value: '', ...options })
+          response.cookies.set({ name, value: '', ...options })
+        },
       },
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session && request.nextUrl.pathname !== '/login' && !request.nextUrl.pathname.startsWith('/auth')) {
+  const { pathname } = request.nextUrl
+  const isAuth = !!user
+  const isLoginPage = pathname === '/login'
+  const isAuthRoute = pathname.startsWith('/auth')
+
+  if (!isAuth && !isLoginPage && !isAuthRoute) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (session && request.nextUrl.pathname === '/login') {
+  if (isAuth && isLoginPage) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
@@ -30,5 +43,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 }
