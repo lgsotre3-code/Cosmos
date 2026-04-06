@@ -1,21 +1,31 @@
 'use client';
 import { useState, useCallback, useEffect, Suspense, lazy } from 'react';
+import type { AppState, BirthData } from '@/lib/astro/types';
 import StarField from '@/components/StarField';
 import BirthForm from '@/components/BirthForm';
 import { useChartWorker } from '@/lib/workers/useChartWorker';
 import { usePersistedChart, parseBirthFromUrl } from '@/lib/hooks/usePersistedChart';
+
 const ChartSection = lazy(() => import('@/components/ChartSection'));
+
 export default function HomePage() {
-  const [state, setState] = useState({ status: 'idle' });
+  const [state, setState] = useState<AppState>({ status: 'idle' });
   const calculateChart = useChartWorker();
   const { save, load, clear } = usePersistedChart();
+
   useEffect(() => {
     const fromUrl = parseBirthFromUrl(window.location.search);
-    if (fromUrl) { runCalculation(fromUrl); return; }
+    if (fromUrl) { 
+      runCalculation(fromUrl); 
+      return; 
+    }
     const saved = load();
-    if (saved) setState({ status: 'success', chart: saved });
+    if (saved) {
+      setState({ status: 'success', chart: saved });
+    }
   }, [load]);
-  const runCalculation = useCallback(async (birth) => {
+
+  const runCalculation = useCallback(async (birth: BirthData) => {
     setState({ status: 'loading' });
     try {
       const chart = await calculateChart(birth);
@@ -23,9 +33,11 @@ export default function HomePage() {
       setState({ status: 'success', chart });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-      setState({ status: 'error', message: err.message });
+      const message = err instanceof Error ? err.message : 'Erro no processamento.';
+      setState({ status: 'error', message });
     }
   }, [calculateChart, save]);
+
   return (
     <>
       <StarField />
@@ -39,10 +51,13 @@ export default function HomePage() {
         </header>
         <main>
           {(state.status === 'idle' || state.status === 'loading' || state.status === 'error') && (
-            <BirthForm onSubmit={b => runCalculation(b)} isLoading={state.status === 'loading'} />
+            <BirthForm onSubmit={(b: BirthData) => runCalculation(b)} isLoading={state.status === 'loading'} />
           )}
-          {state.status === 'success' && (
-            <Suspense fallback={<div>Carregando...</div>}>
+          {state.status === 'error' && (
+             <p style={{ textAlign: 'center', color: '#ff7070', margin: '2rem 0' }}>⚠ {state.message}</p>
+          )}
+          {state.status === 'success' && state.chart && (
+            <Suspense fallback={<div style={{ textAlign: 'center', padding: '4rem', color: '#c9a84c' }}>Carregando Mapa...</div>}>
               <ChartSection chart={state.chart} onReset={() => setState({status:'idle'})} />
             </Suspense>
           )}
@@ -51,10 +66,11 @@ export default function HomePage() {
     </>
   );
 }
+
 const styles = {
   wrap: { position: 'relative', zIndex: 1, maxWidth: '1140px', margin: '0 auto', padding: '72px 1.5rem 1.5rem' },
   header: { textAlign: 'center', padding: '3rem 0 2rem' },
-  h1: { fontFamily: "'Cinzel Decorative', serif", fontSize: 'clamp(2.2rem, 5vw, 3.6rem)', color: '#c9a84c' },
+  h1: { fontFamily: "'Cinzel Decorative', serif", fontSize: 'clamp(2.2rem, 5vw, 3.6rem)', color: '#c9a84c', letterSpacing: '0.08em' },
   tagline: { fontFamily: "'Cinzel', serif", fontSize: '0.8rem', color: 'rgba(237,224,200,0.35)', letterSpacing: '0.38em', textTransform: 'uppercase' },
-  logoutButton: { padding: '0.6rem 1.4rem', borderRadius: '8px', background: 'rgba(220,80,80,0.1)', border: '1px solid rgba(220,80,80,0.3)', color: '#ff8080', cursor: 'pointer', fontFamily: "'Cinzel', serif" }
-};
+  logoutButton: { padding: '0.6rem 1.4rem', borderRadius: '8px', background: 'rgba(220,80,80,0.1)', border: '1px solid rgba(220,80,80,0.3)', color: '#ff8080', cursor: 'pointer', fontFamily: "'Cinzel', serif", fontSize: '0.75rem' }
+} as const;
