@@ -12,7 +12,7 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://cosmos-zeta-nine.vercel.app/auth/callback'
+        redirectTo: `${window.location.origin}/auth/callback`
       }
     })
   }
