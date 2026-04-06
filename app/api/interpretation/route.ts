@@ -23,14 +23,20 @@ async function generateInterpretation(chart: AstralChart): Promise<Interpretatio
 
   const ascSign = signOf(chart.ascendant).sign.name;
 
-  const prompt = `Interprete este Mapa Astral Natal como um Oráculo Ancestral místico e poético, usando metáforas cósmicas, em português brasileiro, tratando o usuário como "você".
+  const prompt = `Você é um Oráculo Ancestral místico e poético. Interprete este Mapa Astral em português brasileiro, tratando o usuário como "você". Use metáforas cósmicas e linguagem esotérica sofisticada.
 
-Planetas:
+Mapa Astral:
 ${planetSigns}
 Ascendente: ${ascSign}
 
-Responda SOMENTE em JSON válido, sem markdown, sem explicações, exatamente neste formato:
-{"summary":"...","career":"...","love":"...","spiritual":"..."}`;
+REGRAS CRÍTICAS:
+- Cada campo deve ter EXATAMENTE 2 a 3 frases — nem mais, nem menos
+- Distribua o conteúdo igualmente entre os 4 campos
+- Seja poético e profundo, mas conciso
+- Responda SOMENTE em JSON válido, sem markdown, sem texto antes ou depois
+
+Formato exato:
+{"summary":"2 a 3 frases sobre a essência da alma e destino","career":"2 a 3 frases sobre vocação e propósito de vida","love":"2 a 3 frases sobre amor e relacionamentos","spiritual":"2 a 3 frases sobre jornada espiritual e karma"}`;
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -39,10 +45,10 @@ Responda SOMENTE em JSON válido, sem markdown, sem explicações, exatamente ne
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-              model: 'llama-3.1-8b-instant',
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.9,
-      max_tokens: 1000,
+      temperature: 0.85,
+      max_tokens: 600,
     }),
   });
 
@@ -51,13 +57,17 @@ Responda SOMENTE em JSON válido, sem markdown, sem explicações, exatamente ne
   }
 
   const data = await response.json();
-  const text = data.choices[0].message.content.trim();
+  let text = data.choices[0].message.content.trim();
+
+  // Remove markdown code blocks if present
+  text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
   const json = JSON.parse(text);
 
   return {
-    summary: json.summary || '',
-    career: json.career || '',
-    love: json.love || '',
+    summary:   json.summary   || '',
+    career:    json.career    || '',
+    love:      json.love      || '',
     spiritual: json.spiritual || '',
     generatedAt: new Date().toISOString(),
   };
@@ -80,7 +90,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[/api/interpretation] Error:', error);
-    return NextResponse.json({ error: 'Erro interno ao processar a interpretação astral.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Erro interno ao processar a interpretação astral.' },
+      { status: 500 }
+    );
   }
 }
 
