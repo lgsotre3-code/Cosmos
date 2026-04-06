@@ -6,6 +6,8 @@ import StarField from '@/components/StarField';
 import BirthForm from '@/components/BirthForm';
 import { useChartWorker } from '@/lib/workers/useChartWorker';
 import { usePersistedChart, parseBirthFromUrl } from '@/lib/hooks/usePersistedChart';
+import { createBrowserClient } from '@supabase/ssr'
+import { useRouter } from 'next/navigation'
 
 const ChartSection = lazy(() => import('@/components/ChartSection'));
 
@@ -14,6 +16,16 @@ export default function HomePage() {
   const [state, setState] = useState<AppState>({ status: 'idle' });
   const calculateChart    = useChartWorker();
   const { save, load, clear } = usePersistedChart();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   // ── Restore from URL params OR localStorage on mount ──────────────────
   useEffect(() => {
@@ -67,6 +79,7 @@ export default function HomePage() {
         <header style={styles.header} role="banner">
           <h1 style={styles.h1}>✦ Cosmos ✦</h1>
           <p style={styles.tagline}>Mapa Astral Natal</p>
+          <button onClick={handleLogout} style={styles.logoutButton}>Sair</button>
         </header>
 
         {/* Main — driven by the state machine */}
@@ -145,6 +158,18 @@ const styles = {
     color: 'rgba(237,224,200,0.35)',
     letterSpacing: '0.38em',
     textTransform: 'uppercase' as const,
+  },
+  logoutButton: {
+    marginTop: '1rem',
+    padding: '0.5rem 1.25rem',
+    borderRadius: '6px',
+    background: 'transparent',
+    border: '1px solid rgba(201,168,76,0.3)',
+    color: 'rgba(237,224,200,0.6)',
+    fontFamily: "var(--font-cinzel, 'Cinzel', serif)",
+    fontSize: '0.75rem',
+    letterSpacing: '0.1em',
+    cursor: 'pointer',
   },
   footer: {
     textAlign: 'center' as const,
