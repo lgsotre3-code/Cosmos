@@ -1,9 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // lib/astro/chart.ts
-// High-level chart generation API and sign/element helpers.
 // ─────────────────────────────────────────────────────────────────────────────
-
-import type { BirthData, AstralChart, SignPosition, ElementalBalance } from './types';
+import type { BirthData, AstralChart, SignPosition, ElementalBalance, House } from './types';
 import { SIGNS, ELEMENT_COLOURS } from './data';
 import {
   julianDay, daysFromJ2000, obliquity, lmst,
@@ -11,12 +9,7 @@ import {
   sunLongitude, moonLongitude, planetLongitude,
 } from './math';
 
-/**
- * Resolve which zodiac sign a given ecliptic longitude falls in.
- * Result is pure data — no formatting side-effects.
- */
 export function signOf(lon: number): SignPosition {
-  // Inline n360 to avoid import cycle risk
   const l = ((lon % 360) + 360) % 360;
   const i   = Math.floor(l / 30);
   const deg = Math.floor(l % 30);
@@ -30,10 +23,6 @@ export function signOf(lon: number): SignPosition {
   };
 }
 
-/**
- * Primary public API: generate a complete astral chart from birth data.
- * Pure function — safe to run in a Web Worker.
- */
 export function generateAstralChart(birth: BirthData): AstralChart {
   const JD   = julianDay(birth.year, birth.month, birth.day, birth.hour, birth.minute, birth.tz);
   const N    = daysFromJ2000(JD);
@@ -41,14 +30,23 @@ export function generateAstralChart(birth: BirthData): AstralChart {
   const LMST = lmst(JD, birth.lon);
   const asc  = computeAscendant(LMST, birth.lat, obl);
   const mc   = computeMC(asc);
+  const ascSignIndex = Math.floor(asc / 30);
+  const houses = Array.from({ length: 12 }, (_, i) => ({
+    number: i + 1,
+    sign: SIGNS[(ascSignIndex + i) % 12],
+  }));
+
+  // Whole Sign House System: A casa 1 e o signo do Ascendente inteiro.
+  const ascSignIndex = Math.floor(asc / 30);
+  const houses: House[] = Array.from({ length: 12 }, (_, i) => {
+    const signIndex = (ascSignIndex + i) % 12;
+    return { number: i + 1, sign: SIGNS[signIndex] };
+  });
 
   return {
     birthData: birth,
-    JD,
-    N,
-    obliquity: obl,
-    ascendant: asc,
-    mc,
+    JD, N, obliquity: obl, ascendant: asc, mc,
+    houses,
     planets: [
       { name: 'Sol',      sym: '☉', lon: sunLongitude(N),                       col: '#f5c842' },
       { name: 'Lua',      sym: '☽', lon: moonLongitude(N),                      col: '#c8d4e8' },
@@ -61,63 +59,18 @@ export function generateAstralChart(birth: BirthData): AstralChart {
       { name: 'Netuno',   sym: '♆', lon: planetLongitude(N, 304.349, 0.00598),  col: '#6090e0' },
       { name: 'Plutão',   sym: '♇', lon: planetLongitude(N, 238.929, 0.00397),  col: '#a070c8' },
     ],
+    houses,
   };
 }
 
-/** Count how many planets (including ASC) fall in each element. */
 export function computeElementalBalance(chart: AstralChart): ElementalBalance {
   const balance: ElementalBalance = { fire: 0, earth: 0, air: 0, water: 0 };
   const lons = [...chart.planets.map(p => p.lon), chart.ascendant];
-  for (const lon of lons) {
-    balance[signOf(lon).sign.el]++;
-  }
+  lons.forEach(lon => { balance[signOf(lon).sign.el]++; });
   return balance;
 }
 
-// Re-export colours so consumers don't need to import from data.ts
-export { ELEMENT_COLOURS };
-
-// ── Date Formatting ────────────────────────────────────────────────────────
-
-const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-
 export function formatBirthDate(year: number, month: number, day: number, time: string): string {
-  return `${String(day).padStart(2, '0')} ${MONTHS_PT[month - 1]} ${year} · ${time}`;
-}
-
-// ── URL serialisation (for sharing) ───────────────────────────────────────
-
-/** Encode BirthData into a URL query string. */
-export function birthDataToParams(b: BirthData): URLSearchParams {
-  return new URLSearchParams({
-    name: b.name,
-    y: String(b.year),
-    mo: String(b.month),
-    d: String(b.day),
-    h: String(b.hour),
-    mi: String(b.minute),
-    lat: String(b.lat),
-    lon: String(b.lon),
-    tz: String(b.tz),
-  });
-}
-
-/** Parse URLSearchParams back into BirthData. Returns null if params are invalid. */
-export function birthDataFromParams(p: URLSearchParams): BirthData | null {
-  try {
-    const name = p.get('name') ?? 'Anônimo';
-    const year = parseInt(p.get('y') ?? '', 10);
-    const month = parseInt(p.get('mo') ?? '', 10);
-    const day = parseInt(p.get('d') ?? '', 10);
-    const hour = parseInt(p.get('h') ?? '', 10);
-    const minute = parseInt(p.get('mi') ?? '', 10);
-    const lat = parseFloat(p.get('lat') ?? '');
-    const lon = parseFloat(p.get('lon') ?? '');
-    const tz = parseFloat(p.get('tz') ?? '');
-
-    if ([year, month, day, hour, minute, lat, lon, tz].some(isNaN)) return null;
-    return { name, year, month, day, hour, minute, lat, lon, tz };
-  } catch {
-    return null;
-  }
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${String(day).padStart(2, '0')} ${months[month - 1]} ${year} · ${time}`;
 }

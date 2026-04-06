@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo } from 'react';
 import type { AstralChart } from '@/lib/astro/types';
@@ -20,23 +20,29 @@ export default function Interpretation({ chart }: InterpretationProps) {
     const sunInfo  = signOf(sun.lon);
     const moonInfo = signOf(moon.lon);
     const ascInfo  = signOf(chart.ascendant);
+    const ascSignIndex = Math.floor(chart.ascendant / 30);
+    const getHouse = (lon: number) => ((Math.floor(lon / 30) - ascSignIndex + 12) % 12) + 1;
+
     return [
       {
         planet: 'Sol', sym: '☉', label: 'Sua essência e identidade',
         signSym: sunInfo.sign.sym, signName: sunInfo.sign.name,
         elementColor: ELEMENT_COLOURS[sunInfo.sign.el],
+        house: getHouse(sun.lon),
         text: INTERP_SUN[sunInfo.sign.name] ?? 'Uma energia em formação.',
       },
       {
         planet: 'Lua', sym: '☽', label: 'Suas emoções e mundo interior',
         signSym: moonInfo.sign.sym, signName: moonInfo.sign.name,
         elementColor: ELEMENT_COLOURS[moonInfo.sign.el],
+        house: getHouse(moon.lon),
         text: INTERP_MON[moonInfo.sign.name] ?? 'Uma energia em formação.',
       },
       {
         planet: 'Ascendente', sym: '⬆', label: 'Como o mundo te percebe',
         signSym: ascInfo.sign.sym, signName: ascInfo.sign.name,
         elementColor: ELEMENT_COLOURS[ascInfo.sign.el],
+        house: 1, // ASC is always House 1 in Whole Sign
         text: INTERP_ASC[ascInfo.sign.name] ?? 'Uma energia em formação.',
       },
     ];
@@ -54,6 +60,7 @@ export default function Interpretation({ chart }: InterpretationProps) {
               {card.sym}{' '}
               {card.planet} em{' '}
               <span style={{ color: card.elementColor }}>{card.signSym} {card.signName}</span>
+              {' '} na Casa {card.house}
             </h3>
             <h4 style={s.cardSubtitle}>{card.label}</h4>
             <p style={s.cardText}>{card.text}</p>
@@ -83,8 +90,8 @@ export default function Interpretation({ chart }: InterpretationProps) {
 const s = {
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '1.25rem' } as React.CSSProperties,
   card: {
-    background: 'rgba(255,255,255,0.018)', border: '1px solid rgba(201,168,76,0.15)',
-    borderRadius: '13px', padding: '1.4rem', transition: 'border-color 0.2s, background 0.2s',
+    background: 'rgba(13,21,53,0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(201,168,76,0.15)',
+    borderRadius: '16px', padding: '1.4rem', transition: 'border-color 0.2s, background 0.2s',
   } as React.CSSProperties,
   cardTitle: {
     fontFamily: "var(--font-cinzel,'Cinzel',serif)",
@@ -106,8 +113,8 @@ const s = {
     letterSpacing: '0.01em',
   },
   balanceCard: {
-    background: 'rgba(255,255,255,0.018)', border: '1px solid rgba(201,168,76,0.15)',
-    borderRadius: '13px', padding: '1.5rem', marginTop: '1.25rem',
+    background: 'rgba(13,21,53,0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(201,168,76,0.15)',
+    borderRadius: '16px', padding: '1.5rem', marginTop: '1.25rem',
   } as React.CSSProperties,
   balanceTitle: {
     fontFamily: "var(--font-cinzel,'Cinzel',serif)",
@@ -121,3 +128,4 @@ const s = {
   bar: { height: '100%', borderRadius: '2px', transition: 'width 0.6s cubic-bezier(0.16, 1, 0.3, 1)' } as React.CSSProperties,
   balanceCount: { fontFamily: "var(--font-cinzel,'Cinzel',serif)", fontSize: '0.75rem', fontWeight: 600 },
 };
+
