@@ -25,34 +25,42 @@ export default function HoroscopoPage() {
   };
 
   return (
-    <main className="animate-fade-in" style={{ position: 'relative', zIndex: 1, minHeight: '100vh', padding: '72px 20px 80px', maxWidth: 860, margin: '0 auto' }}>
-      <header style={{ textAlign: 'center', marginBottom: 48 }}>
-        <h1 className="glow-gold" style={{ fontSize: 'clamp(32px, 7vw, 56px)', fontFamily: "var(--font-cinzel)", fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase' }}>Horóscopo</h1>
+    <main className="animate-fade-in" style={{ position: 'relative', zIndex: 1, minHeight: '100vh', padding: '120px 20px 80px', maxWidth: 1000, margin: '0 auto' }}>
+      <header style={{ textAlign: 'center', marginBottom: 64 }}>
+        <h1 className="glow-gold" style={{ fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontFamily: "var(--font-cinzel-decorative)", fontWeight: 700, color: 'var(--gold)', letterSpacing: '0.1em' }}>Horoscopo</h1>
+        <p style={{ fontFamily: "var(--font-cinzel)", fontSize: '0.8rem', color: 'var(--text-faint)', letterSpacing: '0.4em', textTransform: 'uppercase', marginTop: '1rem' }}>✦ A Mensagem das Estrelas ✦</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 48 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '1rem', marginBottom: 64 }} className="animate-fade-in">
         {SIGNS.map(sign => (
-          <button key={sign.name} onClick={() => handleSelect(sign)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '14px 8px', background: selected?.name === sign.name ? 'rgba(201,168,76,0.15)' : 'rgba(201,168,76,0.04)', border: '1px solid rgba(201,168,76,0.14)', borderRadius: '10px', cursor: 'pointer', color: selected?.name === sign.name ? EL_COLORS[sign.el] : 'var(--text-faint)' }}>
-            <span style={{ fontSize: 22 }}>{sign.sym}</span>
-            <span style={{ fontSize: 9, textTransform: 'uppercase' }}>{sign.name}</span>
+          <button key={sign.name} onClick={() => handleSelect(sign)} style={{ 
+            display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 10px', 
+            background: selected?.name === sign.name ? 'rgba(201,168,76,0.18)' : 'rgba(13,21,53,0.3)', 
+            border: selected?.name === sign.name ? '1px solid var(--gold)' : '1px solid rgba(201,168,76,0.1)', 
+            borderRadius: '16px', cursor: 'pointer', transition: 'all 0.3s ease',
+            color: selected?.name === sign.name ? EL_COLORS[sign.el] : 'var(--text-dim)' 
+          }}>
+            <span style={{ fontSize: 28, marginBottom: 4 }}>{sign.sym}</span>
+            <span style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "var(--font-cinzel)" }}>{sign.name}</span>
           </button>
         ))}
       </div>
 
-      {loading && <div style={{ textAlign: 'center', padding: '48px 0', animation: 'pulse-gold 1.2s infinite', color: 'var(--gold)' }}>✦ Consultando os astros...</div>}
-      {error && <p style={{ textAlign: 'center', color: '#ff7070' }}>{error}</p>}
+      {loading && <div style={{ textAlign: 'center', padding: '64px 0', animation: 'pulse-glow 1.5s infinite', color: 'var(--gold)', fontSize: '1.1rem', letterSpacing: '0.2em' }}>✦ CONSULTANDO OS ASTROS...</div>}
+      {error && <p style={{ textAlign: 'center', color: '#ff7070', background: 'rgba(220,80,80,0.1)', padding: '1rem', borderRadius: '8px' }}>⚠ {error}</p>}
 
       {data && selected && (
         <div className="animate-fade-up">
-          <div style={{ textAlign: 'center', marginBottom: 36 }}>
-            <div style={{ fontSize: 52, color: EL_COLORS[selected.el], filter: 'drop-shadow(0 0 16px rgba(201,168,76,0.4))' }}>{selected.sym}</div>
-            <div style={{ fontSize: 22, fontFamily: "var(--font-cinzel)", color: EL_COLORS[selected.el] }}>{selected.name}</div>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <div style={{ fontSize: 72, color: EL_COLORS[selected.el], filter: 'drop-shadow(0 0 20px rgba(201,168,76,0.4))' }}>{selected.sym}</div>
+            <div style={{ fontSize: 28, fontFamily: "var(--font-cinzel-decorative)", color: EL_COLORS[selected.el], letterSpacing: '0.1em' }}>{selected.name}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-faint)', letterSpacing: '0.3em', textTransform: 'uppercase', marginTop: '0.5rem' }}>{data.date}</div>
           </div>
-          <div style={{ display: 'grid', gap: 16 }}>
-            {['geral', 'amor', 'trabalho', 'energia', 'conselho'].map(key => (
-              <article key={key} className="glass-card" style={{ padding: '20px 22px' }}>
-                <div style={{ fontSize: 9, color: 'var(--gold)', textTransform: 'uppercase', marginBottom: 8 }}>{key}</div>
-                <p style={{ fontSize: 15, color: 'var(--text)', lineHeight: 1.75 }}>{data[key]}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {['geral', 'amor', 'trabalho', 'energia', 'conselho'].map((key, i) => (
+              <article key={key} className="glass-card animate-fade-up" style={{ padding: '2.5rem', gridColumn: key === 'conselho' ? 'span 2' : 'span 1', animationDelay: `${i * 0.1}s` }}>
+                <div style={{ fontSize: 10, color: 'var(--gold)', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '1.25rem', fontFamily: 'var(--font-cinzel)' }}>✦ {key}</div>
+                <p style={{ fontSize: '1.1rem', color: 'var(--text)', lineHeight: 1.85, fontFamily: 'var(--font-garamond)' }}>{data[key]}</p>
               </article>
             ))}
           </div>
