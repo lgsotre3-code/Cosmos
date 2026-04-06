@@ -30,12 +30,6 @@ export function generateAstralChart(birth: BirthData): AstralChart {
   const LMST = lmst(JD, birth.lon);
   const asc  = computeAscendant(LMST, birth.lat, obl);
   const mc   = computeMC(asc);
-  const ascSignIndex = Math.floor(asc / 30);
-  const houses = Array.from({ length: 12 }, (_, i) => ({
-    number: i + 1,
-    sign: SIGNS[(ascSignIndex + i) % 12],
-  }));
-
   // Whole Sign House System: A casa 1 e o signo do Ascendente inteiro.
   const ascSignIndex = Math.floor(asc / 30);
   const houses: House[] = Array.from({ length: 12 }, (_, i) => {
@@ -59,7 +53,6 @@ export function generateAstralChart(birth: BirthData): AstralChart {
       { name: 'Netuno',   sym: '♆', lon: planetLongitude(N, 304.349, 0.00598),  col: '#6090e0' },
       { name: 'Plutão',   sym: '♇', lon: planetLongitude(N, 238.929, 0.00397),  col: '#a070c8' },
     ],
-    houses,
   };
 }
 

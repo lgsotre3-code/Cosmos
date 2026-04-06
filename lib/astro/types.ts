@@ -46,25 +46,15 @@ export interface BirthData {
   tz: number;
 }
 
-export interface House {
-  number: number;
-  sign: ZodiacSign;
-}
-
 export interface AstralChart {
   birthData: BirthData;
   JD: number;
   N: number;
   obliquity: number;
   ascendant: number;
-<<<<<<< HEAD
-  planets: Planet[];
-  houses: House[];
-=======
->>>>>>> 0a56de5 (feat: Houses, Synastry, and deploy fixes)
   mc: number;
   planets: Planet[];
-  houses: House[]; // NEW
+  houses: House[];
 }
 
 export interface Aspect {
@@ -79,6 +69,13 @@ export interface Aspect {
 export interface SynastryAspect extends Aspect {
   planet1: string; // From Person A
   planet2: string; // From Person B
+}
+
+export interface City {
+  n: string;
+  lat: number | null;
+  lon: number | null;
+  tz: number | null;
 }
 
 export interface ElementalBalance {

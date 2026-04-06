@@ -1,0 +1,6 @@
+lib/astro/chart.ts(33,9): error TS2451: Cannot redeclare block-scoped variable 'ascSignIndex'.
+lib/astro/chart.ts(34,9): error TS2451: Cannot redeclare block-scoped variable 'houses'.
+lib/astro/chart.ts(40,9): error TS2451: Cannot redeclare block-scoped variable 'ascSignIndex'.
+lib/astro/chart.ts(41,9): error TS2451: Cannot redeclare block-scoped variable 'houses'.
+lib/astro/chart.ts(62,5): error TS1117: An object literal cannot have multiple properties with the same name.
+lib/astro/data.ts(7,27): error TS2305: Module '"./types"' has no exported member 'City'.
