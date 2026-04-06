@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import type { BirthData } from '@/lib/astro/types';
@@ -245,13 +245,13 @@ const s: Record<string, React.CSSProperties> = {
   card: {
     position: 'relative',
     zIndex: 1,
-    background: 'rgba(8,10,28,0.85)',
+    background: 'rgba(10,12,35,0.7)',
     backdropFilter: 'blur(32px)',
     WebkitBackdropFilter: 'blur(32px)',
     border: '1px solid rgba(201,168,76,0.18)',
     borderRadius: '24px',
     padding: '2.75rem 2.5rem',
-    boxShadow: '0 0 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset, 0 1px 0 rgba(201,168,76,0.1) inset',
+    boxShadow: '0 0 120px rgba(201,168,76,0.1), 0 0 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset, 0 1px 0 rgba(201,168,76,0.1) inset',
   },
 
   headerWrap: {
@@ -427,3 +427,4 @@ const s: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase' as const,
   },
 };
+
