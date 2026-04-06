@@ -1,0 +1,87 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   globals.css
+   Font families come from CSS variables injected by next/font (layout.tsx).
+   ───────────────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --gold: #c9a84c;
+  --gold-bright: #f5c842;
+  --gold-dim: rgba(201, 168, 76, 0.35);
+  --text: #ede0c8;
+  --text-dim: rgba(237, 224, 200, 0.55);
+  --text-faint: rgba(237, 224, 200, 0.35);
+  --bg: #02030e;
+  --surface: rgba(255, 255, 255, 0.025);
+  --border: rgba(201, 168, 76, 0.15);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-garamond, 'EB Garamond', serif);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Animations ─────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-gold {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 0.85; }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Responsive layout ──────────────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .chart-layout-grid { grid-template-columns: 1fr !important; }
+  .form-grid         { grid-template-columns: 1fr !important; }
+  .manual-grid       { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 600px) {
+  .manual-grid  { grid-template-columns: 1fr !important; }
+  .badges-row   { flex-direction: column; }
+}
+
+/* ── Interactive states ─────────────────────────────────────────────────── */
+.planet-row:hover {
+  background: rgba(201,168,76,0.04) !important;
+  border-color: rgba(201,168,76,0.15) !important;
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg,#e0bc62 0%,#c9a84c 100%) !important;
+  box-shadow: 0 4px 32px rgba(201,168,76,0.38) !important;
+  transform: translateY(-1px) !important;
+}
+.back-btn:hover  { color:#c9a84c !important; border-color:rgba(201,168,76,0.4) !important; }
+.interp-card:hover { background:rgba(255,255,255,0.03) !important; border-color:rgba(201,168,76,0.28) !important; }
+input:focus, select:focus {
+  border-color: #c9a84c !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12) !important;
+  outline: none;
+}
+.share-btn:hover {
+  background: rgba(201,168,76,0.12) !important;
+  border-color: rgba(201,168,76,0.4) !important;
+  color: #c9a84c !important;
+}
