@@ -1,54 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { AstralChart } from '@/lib/astro';
-import { signOf } from '@/lib/astro';
 
-export interface InterpretationRequest {
-  chart: AstralChart;
-  focus?: string;
+export interface TarotRequest {
+  question: string;
+  spread: 1 | 3 | 5;
 }
 
-export interface InterpretationResponse {
-  summary: string;
-  career: string;
-  love: string;
-  spiritual: string;
+export interface TarotCard {
+  name: string;
+  arcana: string;
+  position: string;
+  reversed: boolean;
+  message: string;
+}
+
+export interface TarotResponse {
+  cards: TarotCard[];
+  synthesis: string;
   generatedAt: string;
 }
 
-async function generateInterpretation(chart: AstralChart): Promise<InterpretationResponse> {
-  const planetSigns = chart.planets.map(p => {
-    const s = signOf(p.lon);
-    return `${p.name}: ${s.sign.name}`;
-  }).join('\n');
+const SPREADS: Record<number, string[]> = {
+  1: ['A Essência'],
+  3: ['O Passado', 'O Presente', 'O Futuro'],
+  5: ['A Situação', 'O Desafio', 'O Inconsciente', 'O Conselho', 'O Desfecho'],
+};
 
-  const ascSign = signOf(chart.ascendant).sign.name;
+async function generateTarotReading(question: string, spread: number): Promise<TarotResponse> {
+  const positions = SPREADS[spread] ?? SPREADS[1];
 
-  const prompt = `Você é um Oráculo Ancestral místico e poético. Interprete este Mapa Astral em português brasileiro, tratando o usuário como "você". Use metáforas cósmicas e linguagem esotérica sofisticada.
+  const prompt = `Você é o Oráculo das Estrelas — uma presença mística, poética e ancestral. Realize uma leitura de Tarot em português brasileiro para a seguinte questão: "${question}"
 
-Mapa Astral:
-${planetSigns}
-Ascendente: ${ascSign}
+Tiragem: ${spread} carta(s)
+Posições: ${positions.join(', ')}
 
 REGRAS CRÍTICAS:
-- Cada campo deve ter EXATAMENTE 2 a 3 frases — nem mais, nem menos
-- Distribua o conteúdo igualmente entre os 4 campos
-- Seja poético e profundo, mas conciso
-- Responda SOMENTE em JSON válido, sem markdown, sem texto antes ou depois
+- Escolha cartas reais do Tarot (Arcanos Maiores preferencialmente, Menores se necessário)
+- Para cada carta, decida aleatoriamente se está reversed: true ou false
+- Cada "message" deve ter exatamente 2 frases poéticas e profundas sobre aquela posição
+- A "synthesis" deve ter exatamente 3 frases unindo toda a leitura com sabedoria mística
+- Use linguagem esotérica sofisticada, metáforas cósmicas, tom oracular
+- Responda SOMENTE com JSON válido, sem markdown, sem texto antes ou depois
 
-Formato exato:
-{"summary":"2 a 3 frases sobre a essência da alma e destino","career":"2 a 3 frases sobre vocação e propósito de vida","love":"2 a 3 frases sobre amor e relacionamentos","spiritual":"2 a 3 frases sobre jornada espiritual e karma"}`;
+Formato exato (array com ${spread} carta(s)):
+{
+  "cards": [
+    {
+      "name": "Nome da Carta",
+      "arcana": "Arcano Maior" ou "Arcano Menor",
+      "position": "nome da posição",
+      "reversed": true ou false,
+      "message": "Duas frases poéticas sobre esta carta nesta posição."
+    }
+  ],
+  "synthesis": "Três frases unindo toda a leitura com profundidade oracular."
+}`;
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.85,
-      max_tokens: 600,
+      temperature: 0.92,
+      max_tokens: 800,
     }),
   });
 
@@ -58,17 +75,13 @@ Formato exato:
 
   const data = await response.json();
   let text = data.choices[0].message.content.trim();
-
-  // Remove markdown code blocks if present
   text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
   const json = JSON.parse(text);
 
   return {
-    summary:   json.summary   || '',
-    career:    json.career    || '',
-    love:      json.love      || '',
-    spiritual: json.spiritual || '',
+    cards: json.cards,
+    synthesis: json.synthesis,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -79,20 +92,24 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = (await request.json()) as InterpretationRequest;
-    if (!body.chart) {
-      return NextResponse.json({ error: 'Chart é obrigatório.' }, { status: 400 });
+    const body = (await request.json()) as TarotRequest;
+
+    if (!body.question || body.question.trim().length < 3) {
+      return NextResponse.json({ error: 'Pergunta inválida.' }, { status: 400 });
     }
-    const interpretation = await generateInterpretation(body.chart);
-    return NextResponse.json(interpretation, {
+
+    const spread = [1, 3, 5].includes(body.spread) ? body.spread : 1;
+    const reading = await generateTarotReading(body.question.trim(), spread);
+
+    return NextResponse.json(reading, {
       status: 200,
       headers: { 'Cache-Control': 'no-store' },
     });
   } catch (error) {
-    console.error('[/api/interpretation] Error:', error);
+    console.error('[/api/tarot] Error:', error);
     return NextResponse.json(
-      { error: 'Erro interno ao processar a interpretação astral.' },
-      { status: 500 }
+      { error: 'Erro interno ao consultar o oráculo.' },
+      { status: 500 },
     );
   }
 }
