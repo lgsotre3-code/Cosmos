@@ -1,6 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // lib/astro/types.ts
-// Single source of truth for all astrological types.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Element = 'fire' | 'earth' | 'air' | 'water';
@@ -22,6 +21,11 @@ export interface Planet {
   col: string;
 }
 
+export interface House {
+  number: number;
+  sign: ZodiacSign;
+}
+
 export interface SignPosition {
   index: number;
   sign: ZodiacSign;
@@ -39,7 +43,6 @@ export interface BirthData {
   minute: number;
   lat: number;
   lon: number;
-  /** Timezone offset in hours, e.g. -3 for BRT */
   tz: number;
 }
 
@@ -50,6 +53,7 @@ export interface AstralChart {
   obliquity: number;
   ascendant: number;
   planets: Planet[];
+  houses: House[];
   mc: number;
 }
 
@@ -62,24 +66,14 @@ export interface Aspect {
   colour: string;
 }
 
-export interface City {
-  n: string;
-  lat: number | null;
-  lon: number | null;
-  tz: number | null;
+export interface SynastryAspect extends Aspect {
+  planet1: string; // From Person A
+  planet2: string; // From Person B
 }
 
 export interface ElementalBalance {
-  fire: number;
-  earth: number;
-  air: number;
-  water: number;
+  fire: number; earth: number; air: number; water: number;
 }
-
-// ── Type-safe State Machine ────────────────────────────────────────────────
-// Replaces the fragile (appState + chart + isLoading) trio.
-// Impossible states (e.g. chart=null while appState='chart') are eliminated
-// at the type level.
 
 export type AppState =
   | { status: 'idle' }
@@ -87,13 +81,7 @@ export type AppState =
   | { status: 'success'; chart: AstralChart }
   | { status: 'error'; message: string };
 
-// ── Worker message contracts ───────────────────────────────────────────────
-
-export type WorkerRequest = {
-  type: 'GENERATE_CHART';
-  payload: BirthData;
-};
-
+export type WorkerRequest = { type: 'GENERATE_CHART'; payload: BirthData; };
 export type WorkerResponse =
   | { type: 'CHART_SUCCESS'; payload: AstralChart }
   | { type: 'CHART_ERROR'; payload: string };
