@@ -22,9 +22,19 @@ export default function HomePage() {
   )
   const router = useRouter()
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
+  }
+
+  const handleDeleteAccount = async () => {
+    const { error } = await supabase.rpc('delete_user')
+    if (!error) {
+      await supabase.auth.signOut()
+      router.push('/login')
+    }
   }
 
   // ── Restore from URL params OR localStorage on mount ──────────────────
@@ -79,6 +89,7 @@ export default function HomePage() {
         <header style={styles.header} role="banner">
           <h1 style={styles.h1}>✦ Cosmos ✦</h1>
           <p style={styles.tagline}>Mapa Astral Natal</p>
+          <button onClick={() => setShowDeleteConfirm(true)} style={styles.deleteButton}>Excluir conta</button>
           <button onClick={handleLogout} style={styles.logoutButton}>Sair</button>
         </header>
 
@@ -107,6 +118,19 @@ export default function HomePage() {
         <footer style={styles.footer} role="contentinfo">
           ✦ Cosmos — Mapa Astral &nbsp;·&nbsp; Feito com luz e código ✦
         </footer>
+
+        {showDeleteConfirm && (
+          <div style={styles.dialogOverlay} onClick={() => setShowDeleteConfirm(false)}>
+            <div style={styles.dialog} onClick={e => e.stopPropagation()}>
+              <h3 style={styles.dialogTitle}>Confirmar exclusão</h3>
+              <p style={styles.dialogText}>Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.</p>
+              <div style={styles.dialogButtons}>
+                <button onClick={() => setShowDeleteConfirm(false)} style={styles.cancelButton}>Cancelar</button>
+                <button onClick={handleDeleteAccount} style={styles.confirmButton}>Excluir</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
@@ -159,6 +183,19 @@ const styles = {
     letterSpacing: '0.38em',
     textTransform: 'uppercase' as const,
   },
+  deleteButton: {
+    marginTop: '0.75rem',
+    padding: '0.4rem 1rem',
+    borderRadius: '6px',
+    background: 'transparent',
+    border: '1px solid rgba(220,80,80,0.3)',
+    color: 'rgba(220,80,80,0.7)',
+    fontFamily: "var(--font-cinzel, 'Cinzel', serif)",
+    fontSize: '0.7rem',
+    letterSpacing: '0.1em',
+    cursor: 'pointer',
+    marginRight: '0.5rem',
+  },
   logoutButton: {
     marginTop: '1rem',
     padding: '0.5rem 1.25rem',
@@ -169,6 +206,61 @@ const styles = {
     fontFamily: "var(--font-cinzel, 'Cinzel', serif)",
     fontSize: '0.75rem',
     letterSpacing: '0.1em',
+    cursor: 'pointer',
+  },
+  dialogOverlay: {
+    position: 'fixed' as const,
+    top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
+  },
+  dialog: {
+    background: '#0a0a0f',
+    border: '1px solid rgba(201,168,76,0.3)',
+    borderRadius: '12px',
+    padding: '2rem',
+    maxWidth: '400px',
+    textAlign: 'center' as const,
+  },
+  dialogTitle: {
+    fontFamily: "var(--font-cinzel, 'Cinzel', serif)",
+    fontSize: '1.1rem',
+    color: '#c9a84c',
+    marginBottom: '1rem',
+  },
+  dialogText: {
+    fontFamily: "var(--font-garamond, 'Cormorant Garamond', serif)",
+    fontSize: '0.9rem',
+    color: 'rgba(237,224,200,0.7)',
+    marginBottom: '1.5rem',
+    lineHeight: 1.5,
+  },
+  dialogButtons: {
+    display: 'flex',
+    gap: '1rem',
+    justifyContent: 'center',
+  },
+  confirmButton: {
+    padding: '0.6rem 1.5rem',
+    borderRadius: '6px',
+    background: 'rgba(220,80,80,0.15)',
+    border: '1px solid rgba(220,80,80,0.4)',
+    color: '#e07070',
+    fontFamily: "var(--font-cinzel, 'Cinzel', serif)",
+    fontSize: '0.8rem',
+    cursor: 'pointer',
+  },
+  cancelButton: {
+    padding: '0.6rem 1.5rem',
+    borderRadius: '6px',
+    background: 'transparent',
+    border: '1px solid rgba(201,168,76,0.3)',
+    color: 'rgba(237,224,200,0.6)',
+    fontFamily: "var(--font-cinzel, 'Cinzel', serif)",
+    fontSize: '0.8rem',
     cursor: 'pointer',
   },
   footer: {
