@@ -1,0 +1,42 @@
+
+> cosmos-mapa-astral@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.5
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/14) ...
+   Generating static pages (3/14) 
+   Generating static pages (6/14) 
+   Generating static pages (10/14) 
+ ✓ Generating static pages (14/14)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    1.81 kB        96.6 kB
+├ ○ /_not-found                          871 B            88 kB
+├ ƒ /api/horoscopo                       0 B                0 B
+├ ƒ /api/interpretation                  0 B                0 B
+├ ƒ /api/synastry                        0 B                0 B
+├ ƒ /api/tarot                           0 B                0 B
+├ ƒ /auth/callback                       0 B                0 B
+├ ƒ /auth/signout                        0 B                0 B
+├ ○ /horoscopo                           2.58 kB        89.7 kB
+├ ○ /login                               63.7 kB         151 kB
+├ ○ /sinastria                           2.35 kB        97.1 kB
+└ ○ /tarot                               1.86 kB          89 kB
++ First Load JS shared by all            87.1 kB
+  ├ chunks/23-a35197936b8f7e96.js        31.5 kB
+  ├ chunks/fd9d1056-4f4cd2ac10e0898e.js  53.6 kB
+  └ other shared chunks (total)          1.98 kB
+
+
+ƒ Middleware                             79.8 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
