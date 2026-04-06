@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { AstralChart } from '@/lib/astroCalc';
-import { signOf } from '@/lib/astroCalc';
+import type { AstralChart } from '@/lib/astro';
+import { signOf } from '@/lib/astro';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // /app/api/interpretation/route.ts
