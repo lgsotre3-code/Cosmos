@@ -46,15 +46,25 @@ export interface BirthData {
   tz: number;
 }
 
+export interface House {
+  number: number;
+  sign: ZodiacSign;
+}
+
 export interface AstralChart {
   birthData: BirthData;
   JD: number;
   N: number;
   obliquity: number;
   ascendant: number;
+<<<<<<< HEAD
   planets: Planet[];
   houses: House[];
+=======
+>>>>>>> 0a56de5 (feat: Houses, Synastry, and deploy fixes)
   mc: number;
+  planets: Planet[];
+  houses: House[]; // NEW
 }
 
 export interface Aspect {

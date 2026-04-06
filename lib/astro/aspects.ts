@@ -44,3 +44,29 @@ export function computeAspects(planets: Planet[]): Aspect[] {
 
   return aspects;
 }
+
+/** Compute major aspects between two sets of planets (Synastry). */
+export function computeSynastryAspects(planets1: Planet[], planets2: Planet[]): Aspect[] {
+  const aspects: Aspect[] = [];
+
+  for (const p1 of planets1) {
+    for (const p2 of planets2) {
+      const diff = angularDiff(p1.lon, p2.lon);
+      for (const def of ASPECT_DEFINITIONS) {
+        if (Math.abs(diff - def.angle) <= def.orb) {
+          aspects.push({
+            planet1: p1.name,
+            planet2: p2.name,
+            type:    def.type,
+            angle:   def.angle,
+            orb:     Math.abs(diff - def.angle),
+            colour:  def.colour,
+          });
+          break;
+        }
+      }
+    }
+  }
+
+  return aspects;
+}
