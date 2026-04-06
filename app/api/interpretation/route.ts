@@ -11,7 +11,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface InterpretationRequest {
   chart: AstralChart;
-  /** Optional: focus area — 'career' | 'love' | 'spiritual' | 'full' */
   focus?: string;
 }
 
@@ -29,18 +28,19 @@ async function generateInterpretation(
   chart: AstralChart,
   _focus = 'full'
 ): Promise<InterpretationResponse> {
-  const model = genAI.getGenerativeModel({ 
+  const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
     generationConfig: {
       responseMimeType: 'application/json',
-    }
+    },
   });
 
-  // Map each planet to its sign
-  const planetSigns = chart.planets.map(p => {
-    const signInfo = signOf(p.lon);
-    return `${p.name}: ${signInfo.sign.name}`;
-  }).join('\n');
+  const planetSigns = chart.planets
+    .map(p => {
+      const signInfo = signOf(p.lon);
+      return `${p.name}: ${signInfo.sign.name}`;
+    })
+    .join('\n');
 
   const ascSign = signOf(chart.ascendant).sign.name;
 
@@ -91,7 +91,7 @@ async function generateInterpretation(
   }
 }
 
-// ── Route handlers ─────────────────────────────────────────────────────────
+// ── Route handlers ──────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
   if (!process.env.GEMINI_API_KEY) {
@@ -115,9 +115,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(interpretation, {
       status: 200,
-      headers: {
-        'Cache-Control': 'no-store',
-      },
+      headers: { 'Cache-Control': 'no-store' },
     });
   } catch (error) {
     console.error('[/api/interpretation] Error:', error);
@@ -129,5 +127,8 @@ export async function POST(request: NextRequest) {
 }
 
 export function GET() {
-  return NextResponse.json({ error: 'Método não permitido. Use POST.' }, { status: 405 });
+  return NextResponse.json(
+    { error: 'Método não permitido. Use POST.' },
+    { status: 405 }
+  );
 }
