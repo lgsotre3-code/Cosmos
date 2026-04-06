@@ -6,7 +6,7 @@ import StarField from '@/components/StarField';
 import BirthForm from '@/components/BirthForm';
 import { useChartWorker } from '@/lib/workers/useChartWorker';
 import { usePersistedChart, parseBirthFromUrl } from '@/lib/hooks/usePersistedChart';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 
 const ChartSection = lazy(() => import('@/components/ChartSection'));
@@ -16,7 +16,10 @@ export default function HomePage() {
   const [state, setState] = useState<AppState>({ status: 'idle' });
   const calculateChart    = useChartWorker();
   const { save, load, clear } = usePersistedChart();
-  const supabase = createClientComponentClient()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
   const router = useRouter()
 
   useEffect(() => {
